@@ -1,6 +1,7 @@
 FROM quay.io/redhat-user-workloads/rhtas-tenant/rhtas-cli-1-0-beta/cosign@sha256:48fe9148ff23eca281f2f22c25a8b7b1afd75673725a8a4ed5f14e297a308b41 AS cosign-image
 FROM quay.io/redhat-user-workloads/rhtas-tenant/rhtas-cli-1-0-beta/gitsign@sha256:62a3e34b0b918aaa60dc6a0647548ae89da3597121fcc4be8cb571fb89bbe278 AS gitsign-image
 FROM quay.io/redhat-user-workloads/rhtas-tenant/rhtas-cli-1-0-beta/rekor-cli@sha256:2e0287e5d37d32ef6751fc018573eb954456cd1c6227dfbc9ff5fcdcab59e07c AS rekor-image
+FROM quay.io/redhat-user-workloads/rhtap-contract-tenant/ec-v01-alpha/cli-v01-alpha@sha256:e81f2b5add4c7c8b50041a4056e99b3e643f2378acc4b6c953a62e57312f9be8 as ec-image
 
 FROM registry.redhat.io/rhel8/httpd-24:latest
 
@@ -24,6 +25,10 @@ COPY --from=rekor-image /usr/local/bin/rekor_cli_darwin_amd64.gz /var/www/html/c
 COPY --from=rekor-image /usr/local/bin/rekor_cli_linux_amd64.gz /var/www/html/clients/linux
 COPY --from=rekor-image /usr/local/bin/rekor_cli_windows_amd64.exe.gz /var/www/html/clients/windows
 
+COPY --from=ec-image /usr/local/bin/ec_darwin_amd64.gz /var/www/html/clients/darwin
+COPY --from=ec-image /usr/local/bin/ec_linux_amd64.gz /var/www/html/clients/linux
+COPY --from=ec-image /usr/local/bin/ec_windows_amd64.gz /var/www/html/clients/windows
+
 RUN mv /var/www/html/clients/darwin/gitsign_cli_darwin_amd64.gz /var/www/html/clients/darwin/gitsign.gz
 RUN mv /var/www/html/clients/linux/gitsign_cli_linux_amd64.gz /var/www/html/clients/linux/gitsign.gz
 RUN mv /var/www/html/clients/windows/gitsign_cli_windows_amd64.exe.gz /var/www/html/clients/windows/gitsign.gz
@@ -31,6 +36,10 @@ RUN mv /var/www/html/clients/windows/gitsign_cli_windows_amd64.exe.gz /var/www/h
 RUN mv /var/www/html/clients/darwin/rekor_cli_darwin_amd64.gz /var/www/html/clients/darwin/rekor-cli.gz
 RUN mv /var/www/html/clients/linux/rekor_cli_linux_amd64.gz /var/www/html/clients/linux/rekor-cli.gz
 RUN mv /var/www/html/clients/windows/rekor_cli_windows_amd64.exe.gz /var/www/html/clients/windows/rekor-cli.gz
+
+RUN mv /var/www/html/clients/darwin/ec_darwin_amd64.gz /var/www/html/clients/darwin/ec.gz
+RUN mv /var/www/html/clients/linux/ec_linux_amd64.gz /var/www/html/clients/linux/ec.gz
+RUN mv /var/www/html/clients/windows/ec_windows_amd64.gz /var/www/html/clients/windows/ec.gz
 
 RUN mv /var/www/html/clients/darwin/cosign-darwin-amd64.gz /var/www/html/clients/darwin/cosign.gz
 RUN mv /var/www/html/clients/windows/cosign-windows-amd64.gz /var/www/html/clients/windows/cosign.gz
@@ -46,5 +55,5 @@ LABEL \
       description="Serves Trusted Artifact Signer CLI binaries from an HTTP server" \
       io.k8s.description="Serves Trusted Artifact Signer CLI binaries from an HTTP server" \
       io.k8s.display-name="Red Hat serves Trusted Artifact Signer CLI binaries" \
-      io.openshift.tags="cosign, gitsign, rekor, cli, rhtas, trusted, artifact, signer, sigstore" \
+      io.openshift.tags="cosign, gitsign, rekor, ec, cli, rhtas, trusted, artifact, signer, sigstore" \
       maintainer="trusted-artifact-signer@redhat.com"
